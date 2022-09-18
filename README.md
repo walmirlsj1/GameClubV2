@@ -2,32 +2,35 @@
 ## Duas entidades independentes:
 
 ### Class: GameModel (id, name, console, owner)
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+```Java 
+@Id
+@GeneratedValue(strategy = GenerationType.AUTO)
+private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+@Column(nullable = false, length = 100)
+private String name;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
-    private ConsoleEnum console;
+@Enumerated(EnumType.STRING)
+@Column(nullable = false, length = 50)
+private ConsoleEnum console;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    @NotNull
-    private PartnerModel owner;
+@ManyToOne
+@JoinColumn(name = "owner_id")
+@NotNull
+private PartnerModel owner;
+ ```
 ### Class: Partner (id, name, phoneNumber)
+```Java 
+@Id
+@GeneratedValue(strategy = GenerationType.AUTO)
+private Long id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+@Column(nullable = false, length = 100)
+private String name;
 
-    @Column(nullable = false, length = 100)
-    private String name;
-
-    @Column(nullable = false, length = 15)
-    private String phoneNumber;
+@Column(nullable = false, length = 15)
+private String phoneNumber;
+ ```
 
 ## Restrição:
   Para se associar e manter-se associado, cada membro deve ter pelo menos um jogo no catálogo.
@@ -35,41 +38,48 @@
 
 ## DTO's
 ### Class: GameDto
-    @NotBlank
-    @Size(max = 100)
-    private String name;
+```Java 
+@NotBlank
+@Size(max = 100)
+private String name;
 
-    private ConsoleEnum console;
+private ConsoleEnum console;
+ ```
 
 ### Class: GameDtoOutput
-    private Long id;
-    private String name;
-    private ConsoleEnum console;
+```Java 
+private Long id;
+private String name;
+private ConsoleEnum console;
+ ```
 
 ### Class: GamePartnerDto
-    @NotBlank
-    @Size(max = 100)
-    private String name;
+```Java 
+@NotBlank
+@Size(max = 100)
+private String name;
 
-    private ConsoleEnum console;
+private ConsoleEnum console;
 
-    @NotBlank
-    @Size(max = 100)
-    private String owner;
+@NotBlank
+@Size(max = 100)
+private String owner;
 
-    @NotBlank
-    @Size(max = 15)
-    private String ownerPhoneNumber ;
-
+@NotBlank
+@Size(max = 15)
+private String ownerPhoneNumber ;
+ ```
+ 
 ### Class: PartnerDto
-    @NotBlank
-    @Size(max = 100)
-    private String name;
+```Java 
+@NotBlank
+@Size(max = 100)
+private String name;
 
-    @NotBlank
-    @Size(max = 15)
-    private String phoneNumber ;
-
+@NotBlank
+@Size(max = 15)
+private String phoneNumber ;
+ ```
 ## Database Postgres
     database name: gamers-club-db-v2
 
