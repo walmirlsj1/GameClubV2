@@ -21,7 +21,7 @@ import br.ufms.cpcx.api.gamersclub.services.PartnerService;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/v1/partner")
+@RequestMapping("/v2/partner")
 public class PartnerController {
     final PartnerService partnerService;
     final GameService gameService;
