@@ -14,6 +14,7 @@ public class GameDto {
     @Size(max = 100)
     private String name;
 
+    @NotNull
     private ConsoleEnum console;
 
     public GameModel getGameModel(){

@@ -2,7 +2,10 @@ package br.ufms.cpcx.api.gamersclub.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 
@@ -20,5 +23,9 @@ public class PartnerModel implements Serializable {
 
     @Column(nullable = false, length = 15)
     private String phoneNumber;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GameModel> games = new ArrayList<>();
 
 }

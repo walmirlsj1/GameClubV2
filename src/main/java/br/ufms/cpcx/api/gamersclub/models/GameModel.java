@@ -4,6 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 
@@ -12,6 +13,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 public class GameModel implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -23,8 +25,8 @@ public class GameModel implements Serializable {
     @Column(nullable = false, length = 50)
     private ConsoleEnum console;
 
-    @ManyToOne
+    @JsonBackReference
+    @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id")
-    @NotNull
     private PartnerModel owner;
 }

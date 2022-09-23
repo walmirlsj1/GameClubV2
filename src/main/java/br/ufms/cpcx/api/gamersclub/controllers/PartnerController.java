@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.Optional;
 
 import br.ufms.cpcx.api.gamersclub.models.PartnerModel;
@@ -17,6 +18,7 @@ import br.ufms.cpcx.api.gamersclub.models.PartnerModel;
 import br.ufms.cpcx.api.gamersclub.dtos.PartnerDto;
 
 import br.ufms.cpcx.api.gamersclub.services.PartnerService;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
 @RestController
@@ -45,6 +47,21 @@ public class PartnerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partner not found.");
         }
         return ResponseEntity.status(HttpStatus.OK).body(partnerModelOptional.get());
+    }
+
+    @PostMapping()
+    public ResponseEntity<Object> createPartner(@RequestBody @Valid PartnerDto partnerDto) {
+        var partnerModel = partnerDto.getPartnerModel();
+
+        var partnerModelOptional = partnerService.findByPartner(partnerModel);
+
+        if (partnerModelOptional.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partner already registered.");
+
+        if (partnerDto.getGames().isEmpty())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("List of game is empty.");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(partnerService.save(partnerModel));
     }
 
     @PutMapping("/{id}")
