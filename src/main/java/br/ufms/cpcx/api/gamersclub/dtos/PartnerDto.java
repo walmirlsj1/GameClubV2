@@ -2,41 +2,39 @@ package br.ufms.cpcx.api.gamersclub.dtos;
 
 import javax.validation.constraints.*;
 
-import br.ufms.cpcx.api.gamersclub.models.GameModel;
 import lombok.*;
 
+import br.ufms.cpcx.api.gamersclub.models.ConsoleEnum;
+import br.ufms.cpcx.api.gamersclub.models.GameModel;
 import br.ufms.cpcx.api.gamersclub.models.PartnerModel;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Getter @Setter
-public class PartnerDto {
+public class GamePartnerDto {
     @NotBlank
     @Size(max = 100)
     private String name;
 
+    private ConsoleEnum console;
+
+    @NotBlank
+    @Size(max = 100)
+    private String owner;
+
     @NotBlank
     @Size(max = 15)
-    private String phoneNumber ;
+    private String ownerPhoneNumber ;
 
-    @NotNull
-    private List<GameDto> games;
 
-    public PartnerModel getPartnerModel(){
+    public GameModel getGameModel(){
         var partnerModel = new PartnerModel();
-        partnerModel.setName(this.getName());
-        partnerModel.setPhoneNumber(getPhoneNumber());
+        partnerModel.setName(this.getOwner());
+        partnerModel.setPhoneNumber(this.getOwnerPhoneNumber());
 
-        var listGames = games.stream().map(g -> {
-            GameModel gameNew = g.getGameModel();
-            gameNew.setOwner(partnerModel);
-            return gameNew;
-        }).collect(Collectors.toList());
-
-        partnerModel.setGames(listGames);
-
-        return partnerModel;
+        var gameModel = new GameModel();
+        gameModel.setName(this.getName());
+        gameModel.setConsole(this.getConsole());
+        gameModel.setOwner(partnerModel);
+        return gameModel;
     }
 }
