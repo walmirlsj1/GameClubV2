@@ -1,7 +1,6 @@
 package br.ufms.cpcx.api.gamersclub.models;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
@@ -11,9 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
-
-import static javax.persistence.TemporalType.TIMESTAMP;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "TB_GAME_LOAN")
@@ -37,15 +34,12 @@ public class GameLoanModel implements Serializable {
     @JoinColumn(name = "game_id", nullable = false)
     private GameModel game;
 
-    @Temporal(TIMESTAMP)
     @CreatedDate
-    private Date loanDate;
+    private LocalDateTime loanDate;
 
-    @Temporal(TIMESTAMP)
-    private Date scheduledReturnDate;
+    private LocalDateTime scheduledReturnDate;
 
-    @Temporal(TIMESTAMP)
-    private Date returnDate;
+    private LocalDateTime returnDate;
 
 //    id, partner, game, loanDate, scheduledReturnDate , returnDate
 

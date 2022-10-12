@@ -14,7 +14,7 @@ import java.util.List;
 public interface GameLoanRepository extends JpaRepository<GameLoanModel, Long> {
     public Page<GameLoanModel> findByPartner(PartnerModel partnerModel, Pageable pageable);
 
-    @Query(value = "SELECT count(gl) FROM GameLoanModel gl WHERE gl.partner.id = :partnerId and gl.returnDate is NULL and gl.scheduledReturnDate > CURRENT_DATE")
+    @Query(value = "SELECT count(gl) FROM GameLoanModel gl WHERE gl.partner.id = :partnerId and gl.returnDate is NULL and gl.scheduledReturnDate < current_timestamp ")
     public Long checkOverdueLoan(Long partnerId);
 
     @Query(value = "SELECT count(gl) FROM GameLoanModel gl WHERE gl.partner.id = :partnerId and gl.returnDate is NULL")
@@ -24,21 +24,10 @@ public interface GameLoanRepository extends JpaRepository<GameLoanModel, Long> {
             "      from GameLoanModel gl\n" +
             "      LEFT JOIN PartnerModel p1 ON p1.id = gl.partner.id\n" +
             "      LEFT JOIN GameModel g1 ON g1.id = gl.game.id\n" +
-            "      where g1.owner.id = :partnerId")
+            "      where g1.owner.id = :partnerId or p1.id = :partnerId")
     public Long countGameLoans(Long partnerId);
 
     @Query(value = "SELECT count(gl) FROM GameLoanModel gl WHERE gl.game.id = :gameId and gl.returnDate is null")
     public Long checkGameIsAvailable(Long gameId);
 
-    /**
-     *
-     verificar vinculos sobre registro
-     select *
-      from tb_game_loan gl
-      LEFT JOIN tb_partner p1 ON p1.id = gl.partner_id
-      LEFT JOIN tb_game g1 ON g1.id = gl.game_id
-      where g1.owner_id = 4
-
-
-     */
 }

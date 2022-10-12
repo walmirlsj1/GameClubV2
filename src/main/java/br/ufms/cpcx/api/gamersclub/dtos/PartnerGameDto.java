@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 
 @Getter @Setter
-public class PartnerDto {
+public class PartnerGameDto {
     @NotBlank
     @Size(max = 100)
     private String name;

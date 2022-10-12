@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
@@ -25,7 +26,12 @@ public class PartnerModel implements Serializable {
     private String phoneNumber;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @Column(nullable = false)
     private List<GameModel> games = new ArrayList<>();
 
+    @JsonBackReference
+    @OneToMany(mappedBy = "partner", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @Column(nullable = false)
+    private List<GameLoanModel> loans = new ArrayList<>();
 }

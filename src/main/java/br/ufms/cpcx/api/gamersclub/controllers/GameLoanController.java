@@ -1,6 +1,5 @@
 package br.ufms.cpcx.api.gamersclub.controllers;
 
-import br.ufms.cpcx.api.gamersclub.dtos.GameLoanDto;
 import br.ufms.cpcx.api.gamersclub.dtos.PartnerGameDto;
 import br.ufms.cpcx.api.gamersclub.models.GameLoanModel;
 import br.ufms.cpcx.api.gamersclub.models.GameModel;
@@ -17,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -62,7 +62,7 @@ public class GameLoanController {
 
     @PostMapping("loan/{game_id}")
     public ResponseEntity<Object> gameLoan(@PathVariable(value = "partner_id") Long partnerId,
-                                      @PathVariable(value = "game_id") Long gameId, @RequestBody @Valid GameLoanDto gameLoanDto) {
+                                      @PathVariable(value = "game_id") Long gameId) {
         /**
          * List all Game loan for partner id
          */
@@ -78,8 +78,7 @@ public class GameLoanController {
         GameLoanModel gameLoanModel = new GameLoanModel();
         gameLoanModel.setPartner(partnerModelOptional.get());
         gameLoanModel.setGame(gameModelOptional.get());
-        gameLoanModel.setScheduledReturnDate(gameLoanDto.getScheduledReturnDate());
-        // checkar se esta disponivel.. se nao esta emprestado pra alguem
+        gameLoanModel.setScheduledReturnDate((LocalDateTime.now()).plusMonths(1));
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(gameLoanService.loan(gameLoanModel));
@@ -89,14 +88,15 @@ public class GameLoanController {
     public ResponseEntity<Object> gameRefund(@PathVariable(value = "partner_id") Long partnerId,
                                         @PathVariable(value = "game_loan_id") Long gameLoanId) {
         Optional<GameLoanModel> gameLoanModelOptional = gameLoanService.findById(gameLoanId);
-        if (!gameLoanModelOptional.isPresent()) {
+        if (!gameLoanModelOptional.isPresent())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Loan not found.");
-        }
+        GameLoanModel gameLoanModel = gameLoanModelOptional.get();
 
-        // checkar se esta disponivel.. se nao esta emprestado pra alguem
+        if(gameLoanModel.getReturnDate() != null)
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Refund has already been made");
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(gameLoanService.refund(gameLoanModelOptional.get()));
+                .body(gameLoanService.refund(gameLoanModel));
     }
 
 }

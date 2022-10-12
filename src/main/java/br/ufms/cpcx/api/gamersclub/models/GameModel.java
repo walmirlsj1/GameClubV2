@@ -1,12 +1,13 @@
 package br.ufms.cpcx.api.gamersclub.models;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
-
 
 @Entity
 @Table(name = "TB_GAME")
@@ -26,7 +27,12 @@ public class GameModel implements Serializable {
     private ConsoleEnum console;
 
     @JsonBackReference
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "owner_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
     private PartnerModel owner;
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @Column(nullable = false)
+    private List<GameLoanModel> games = new ArrayList<>();
 }

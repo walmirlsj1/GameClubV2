@@ -34,6 +34,43 @@ public class PartnerGameController {
         this.partnerService = partnerService;
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateGame(@PathVariable(value = "partner_id") Long partnerId, @PathVariable(value = "id") Long id, @RequestBody @Valid GameDto gameDto) {
+
+        Optional<GameModel> gameModelOptional = gameService.findById(id);
+
+        if (!gameModelOptional.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game not found.");
+
+        var gameModel = gameModelOptional.get();
+
+        if(!partnerId.equals(gameModel.getOwner().getId()))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game not found.");
+
+        gameModel.setConsole(gameDto.getConsole());
+        gameModel.setName(gameDto.getName());
+
+        return ResponseEntity.status(HttpStatus.OK).body(gameService.save(gameModel));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteGame(@PathVariable(value = "partner_id") Long partnerId, @PathVariable(value = "id") Long id) {
+
+        Optional<GameModel> gameModelOptional = gameService.findById(id);
+
+        if (!gameModelOptional.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game not found.");
+
+        var gameModel = gameModelOptional.get();
+
+        if(!partnerId.equals(gameModel.getOwner().getId()))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game not found.");
+
+        gameService.delete(gameModel);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Game deleted successfully.");
+    }
+
     @GetMapping()
     public ResponseEntity<Object> getAllGameByPartner(@PathVariable(value = "partner_id") Long partnerId, @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<GameDtoOutput> pageGameModel = gameService.findAllGameModelByOwnerId(partnerId, pageable)
@@ -81,4 +118,6 @@ public class PartnerGameController {
         return ResponseEntity.status(HttpStatus.OK).body(pageGameDtoOutput);
 
     }
+
+
 }

@@ -1,5 +1,6 @@
 package br.ufms.cpcx.api.gamersclub.controllers;
 
+import br.ufms.cpcx.api.gamersclub.dtos.PartnerDto;
 import br.ufms.cpcx.api.gamersclub.services.GameService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,15 +11,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.Optional;
 
 import br.ufms.cpcx.api.gamersclub.models.PartnerModel;
 
-import br.ufms.cpcx.api.gamersclub.dtos.PartnerDto;
+import br.ufms.cpcx.api.gamersclub.dtos.PartnerGameDto;
 
 import br.ufms.cpcx.api.gamersclub.services.PartnerService;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
 @RestController
@@ -50,15 +49,15 @@ public class PartnerController {
     }
 
     @PostMapping()
-    public ResponseEntity<Object> createPartner(@RequestBody @Valid PartnerDto partnerDto) {
-        var partnerModel = partnerDto.getPartnerModel();
+    public ResponseEntity<Object> createPartner(@RequestBody @Valid PartnerGameDto partnerGameDto) {
+        var partnerModel = partnerGameDto.getPartnerModel();
 
         var partnerModelOptional = partnerService.findByPartner(partnerModel);
 
         if (partnerModelOptional.isPresent())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partner already registered.");
 
-        if (partnerDto.getGames().isEmpty())
+        if (partnerGameDto.getGames().isEmpty())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("List of game is empty.");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(partnerService.save(partnerModel));
@@ -72,8 +71,14 @@ public class PartnerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partner not found.");
 
         var partnerModel = partnerDto.getPartnerModel();
-        partnerModel.setId(partnerModelOptional.get().getId());
-        return ResponseEntity.status(HttpStatus.OK).body(partnerService.save(partnerModel));
+        var partnerModelDb = partnerModelOptional.get();
+
+        partnerModel.setId(partnerModelDb.getId());
+        partnerModel.setGames(partnerModelDb.getGames());
+        partnerModelDb = partnerService.save(partnerModel);
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(partnerModelDb);
     }
 
     @DeleteMapping("/{id}")
@@ -84,7 +89,6 @@ public class PartnerController {
 
         var partner = partnerModelOptional.get();
 
-        gameService.deleteAllByOwnerId(partner.getId());
         partnerService.delete(partner);
 
         return ResponseEntity.status(HttpStatus.OK).body("Partner deleted successfully.");
@@ -93,7 +97,7 @@ public class PartnerController {
     @GetMapping(path = "/search")
     public ResponseEntity<Page<PartnerModel>> getAllPartnersFilter(@RequestParam(required = false) String name, @RequestParam(required = false) String phoneNumber, @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
 
-        var partnerDto = new PartnerDto();
+        var partnerDto = new PartnerGameDto();
         partnerDto.setName(name);
         partnerDto.setPhoneNumber(phoneNumber);
 

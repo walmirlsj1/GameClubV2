@@ -2,7 +2,7 @@ package br.ufms.cpcx.api.gamersclub.services;
 
 import java.util.Optional;
 
-import org.springframework.beans.BeanUtils;
+import br.ufms.cpcx.api.gamersclub.models.GameLoanModel;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.ufms.cpcx.api.gamersclub.dtos.GamePartnerDto;
 import br.ufms.cpcx.api.gamersclub.models.GameModel;
 import br.ufms.cpcx.api.gamersclub.repositories.GameRepository;
 import br.ufms.cpcx.api.gamersclub.repositories.PartnerRepository;
@@ -34,16 +33,18 @@ public class GameService {
     @Transactional
     public void delete(GameModel gameModel) {
 
+        if (gameModel.getGames().stream().filter(o -> o.getReturnDate() == null).count() != 0)
+            throw new RuntimeException("There are game relationships");
+        else if(gameModel.getOwner().getGames().size() == 1 )
+            throw new RuntimeException("It is not allowed to delete a game when it is the only game owned by the partner");
         gameRepository.delete(gameModel);
-
-        Long ownerMoreGame = gameRepository.countByOwnerId(gameModel.getOwner().getId());
-        if (ownerMoreGame == 0) partnerRepository.delete(gameModel.getOwner());
-
     }
+
     @Transactional
     public void deleteAllByOwnerId(Long partnerId) {
         gameRepository.deleteAllByOwnerId(partnerId);
     }
+
     public Page<GameModel> findAll(Pageable pageable) {
         return gameRepository.findAll(pageable);
     }
@@ -55,14 +56,12 @@ public class GameService {
     public boolean existsGameModelForOwner(GameModel gameModel) {
         return gameRepository.existsByNameAndConsoleAndOwner(gameModel.getName(), gameModel.getConsole(), gameModel.getOwner());
     }
+
     public Page<GameModel> findAllGameModelByOwnerId(Long id, Pageable pageable) {
         return gameRepository.findAllGameModelByOwnerId(id, pageable);
     }
 
-    public Page<GameModel> findByConsoleAndFilter(GamePartnerDto gamePartnerDto, Pageable pageable) {
-
-        var gameModel = new GameModel();
-        BeanUtils.copyProperties(gamePartnerDto, gameModel);
+    public Page<GameModel> findByConsoleAndFilter(GameModel gameModel, Pageable pageable) {
 
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withMatcher("console", match -> match.exact())

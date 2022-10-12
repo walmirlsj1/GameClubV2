@@ -14,17 +14,14 @@ import org.springframework.stereotype.Service;
 
 import java.beans.Transient;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class GameLoanService {
-/**
- 7. Loan
- 8. Refund
- 9. Find About "Loan and Refund"
- */
+
     private final GameLoanRepository gameLoanRepository;
     private final GameRepository gameRepository;
     private final PartnerRepository partnerRepository;
@@ -41,7 +38,11 @@ public class GameLoanService {
     public GameLoanModel loan(GameLoanModel gameLoanModel){
 
         if (this.checkOverdue(gameLoanModel.getPartner().getId())
-                || this.checkMaxLoans(gameLoanModel.getPartner().getId())) throw new DataIntegrityViolationException("Delayed returns, or game limit exceeded");
+                || this.checkMaxLoans(gameLoanModel.getPartner().getId()))
+            throw new DataIntegrityViolationException("Delayed returns, or game limit exceeded");
+
+        if(gameLoanRepository.checkGameIsAvailable(gameLoanModel.getGame().getId()) != 0)
+            throw new DataIntegrityViolationException("Game has already been borrowed");
 
         gameLoanModel.setReturnDate(null);
 
@@ -53,7 +54,7 @@ public class GameLoanService {
 
     @Transient
     public GameLoanModel refund(GameLoanModel gameLoanModel){
-        gameLoanModel.setReturnDate(Date.from(OffsetDateTime.now().toInstant()));
+        gameLoanModel.setReturnDate(LocalDateTime.now());
         return gameLoanRepository.save(gameLoanModel);
     }
 
@@ -79,14 +80,5 @@ public class GameLoanService {
 
     public Boolean checkHasLoan(Long partnerId){
         return gameLoanRepository.countGameLoans(partnerId) >= 1L;
-
-        /**
-         * @FIXME
-         *
-         * Se um partner pegar um jogo de outro emprestado
-         * e o partner dono depois de um certo tempo se exclui do club, ele apaga o vinculos sem rastro.
-         * Verificar se o partner pegou jogos emprestado e se alguem pegou emprestado dele.
-         *  Select p, gl, from Parner p,GameLoan gl where gl.p.id
-         */
     }
 }
