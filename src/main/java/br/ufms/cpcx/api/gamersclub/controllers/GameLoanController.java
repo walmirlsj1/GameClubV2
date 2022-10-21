@@ -62,13 +62,8 @@ public class GameLoanController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Game not found.");
         }
 
-        GameLoanModel gameLoanModel = new GameLoanModel();
-        gameLoanModel.setPartner(partnerModelOptional.get());
-        gameLoanModel.setGame(gameModelOptional.get());
-        gameLoanModel.setScheduledReturnDate((LocalDateTime.now()).plusMonths(1));
-
         return ResponseEntity.status(HttpStatus.OK)
-                .body(gameLoanService.loan(gameLoanModel));
+                .body(gameLoanService.loan(partnerModelOptional.get(), gameModelOptional.get()));
     }
     @PostMapping("loan/")
     public ResponseEntity<Object> gameLoanList(@PathVariable(value = "partner_id") Long partnerId) {

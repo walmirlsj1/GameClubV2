@@ -27,6 +27,7 @@ public class GameLoanService {
     private final PartnerRepository partnerRepository;
 
     private final Long MAX_LOANS_BY_PARTNER = 5L;
+    private final int MAX_MONTH_FOR_REFUND = 1;
 
     public GameLoanService(GameLoanRepository gameLoanRepository, GameRepository gameRepository, PartnerRepository partnerRepository){
         this.gameLoanRepository = gameLoanRepository;
@@ -35,15 +36,19 @@ public class GameLoanService {
     }
 
     @Transient
-    public GameLoanModel loan(GameLoanModel gameLoanModel){
+    public GameLoanModel loan(PartnerModel partnerModel, GameModel gameModel){
 
-        if (this.checkOverdue(gameLoanModel.getPartner().getId())
-                || this.checkMaxLoans(gameLoanModel.getPartner().getId()))
+        if (this.checkOverdue(partnerModel.getId())
+                || this.checkMaxLoans(partnerModel.getId()))
             throw new DataIntegrityViolationException("Delayed returns, or game limit exceeded");
 
-        if(!gameLoanRepository.checkGameIsAvailable(gameLoanModel.getGame().getId()))
+        if(!gameLoanRepository.checkGameIsAvailable(gameModel.getId()))
             throw new DataIntegrityViolationException("Game has already been borrowed");
 
+        GameLoanModel gameLoanModel = new GameLoanModel();
+        gameLoanModel.setPartner(partnerModel);
+        gameLoanModel.setGame(gameModel);
+        gameLoanModel.setScheduledReturnDate((LocalDateTime.now()).plusMonths(MAX_MONTH_FOR_REFUND));
         gameLoanModel.setReturnDate(null);
 
         if(gameLoanModel.getPartner().getGames().stream().filter(p-> p.getId().equals(gameLoanModel.getGame().getId())).count() > 0)
