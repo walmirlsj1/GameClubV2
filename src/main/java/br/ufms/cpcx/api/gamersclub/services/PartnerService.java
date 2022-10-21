@@ -20,8 +20,11 @@ public class PartnerService {
     final PartnerRepository partnerRepository;
     final GameLoanService gameLoanService;
 
-    public PartnerService(PartnerRepository partnerRepository, GameLoanService gameLoanService) {
+    final GameService gameService;
+
+    public PartnerService(PartnerRepository partnerRepository, GameService gameService, GameLoanService gameLoanService) {
         this.partnerRepository = partnerRepository;
+        this.gameService = gameService;
         this.gameLoanService = gameLoanService;
     }
 
@@ -34,7 +37,9 @@ public class PartnerService {
     public void delete(PartnerModel partnerModel) {
         if(gameLoanService.checkHasLoan(partnerModel.getId())) throw new DataIntegrityViolationException("There are partner relationships");
 
-        partnerRepository.delete(partnerModel);
+        gameService.deleteAllByOwnerId(partnerModel.getId());
+
+        partnerRepository.customDeleteByPartnerId(partnerModel.getId());
     }
 
     public Page<PartnerModel> findAll(Pageable pageable) {

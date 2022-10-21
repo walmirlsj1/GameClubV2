@@ -41,7 +41,7 @@ public class GameLoanService {
                 || this.checkMaxLoans(gameLoanModel.getPartner().getId()))
             throw new DataIntegrityViolationException("Delayed returns, or game limit exceeded");
 
-        if(gameLoanRepository.checkGameIsAvailable(gameLoanModel.getGame().getId()) != 0)
+        if(!gameLoanRepository.checkGameIsAvailable(gameLoanModel.getGame().getId()))
             throw new DataIntegrityViolationException("Game has already been borrowed");
 
         gameLoanModel.setReturnDate(null);
@@ -74,11 +74,11 @@ public class GameLoanService {
         return gameLoanRepository.countGameLoansNotRefund(partnerId) >= MAX_LOANS_BY_PARTNER;
     }
 
-    private Boolean checkGameIsAvailable(Long gameId){
-        return gameLoanRepository.checkGameIsAvailable(gameId) == 0L;
-    }
-
     public Boolean checkHasLoan(Long partnerId){
-        return gameLoanRepository.countGameLoans(partnerId) >= 1L;
+
+        Boolean hasBurrowedGames = gameLoanRepository.existBurrowedGames(partnerId);
+        Boolean hasActiveLoans = gameLoanRepository.existActiveLoans(partnerId);
+
+        return hasActiveLoans || hasBurrowedGames;
     }
 }

@@ -22,7 +22,6 @@ public class PartnerGameDto {
     @Size(max = 15)
     private String phoneNumber ;
 
-//    @NotNull
     private List<GameDto> games = new ArrayList<>();
 
     public PartnerModel getPartnerModel(){

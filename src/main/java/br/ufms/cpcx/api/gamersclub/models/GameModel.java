@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 @Entity
@@ -32,7 +31,7 @@ public class GameModel implements Serializable {
     private PartnerModel owner;
 
     @JsonBackReference
-    @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(mappedBy = "game", cascade = {CascadeType.PERSIST}, orphanRemoval = true, fetch = FetchType.LAZY)
     @Column(nullable = false)
     private List<GameLoanModel> games = new ArrayList<>();
 }

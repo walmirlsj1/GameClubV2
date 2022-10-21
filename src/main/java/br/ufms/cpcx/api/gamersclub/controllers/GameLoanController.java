@@ -23,15 +23,7 @@ import java.util.Optional;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/v2/partner/{partner_id}")
 public class GameLoanController {
-    /**
-     * Loan
-     * Refund
-     * Find About "Loan and Refund"
-     * <p>
-     * /partner/{partner_id}/loan/{game_id}
-     * /partner/{partner_id}/refund/{game_id}
-     * /partner/{partner_id}/listLoanAndRefund
-     */
+
     private final GameLoanService gameLoanService;
     private final PartnerService partnerService;
     private final GameService gameService;
@@ -47,9 +39,6 @@ public class GameLoanController {
     public ResponseEntity<Object> listAllLoanAndRefundFilter(@PathVariable(value = "partner_id") Long partnerId,
                                                         @PageableDefault(page = 0, size = 10, sort = "id",
                                                                 direction = Sort.Direction.ASC) Pageable pageable) {
-        /**
-         * List all Game loan for partner id
-         */
 
         Optional<PartnerModel> partnerModelOptional = partnerService.findById(partnerId);
         if (!partnerModelOptional.isPresent()) {
@@ -63,9 +52,7 @@ public class GameLoanController {
     @PostMapping("loan/{game_id}")
     public ResponseEntity<Object> gameLoan(@PathVariable(value = "partner_id") Long partnerId,
                                       @PathVariable(value = "game_id") Long gameId) {
-        /**
-         * List all Game loan for partner id
-         */
+
         Optional<PartnerModel> partnerModelOptional = partnerService.findById(partnerId);
         if (!partnerModelOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partner not found.");
@@ -83,6 +70,17 @@ public class GameLoanController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(gameLoanService.loan(gameLoanModel));
     }
+    @PostMapping("loan/")
+    public ResponseEntity<Object> gameLoanList(@PathVariable(value = "partner_id") Long partnerId) {
+
+        Optional<PartnerModel> partnerModelOptional = partnerService.findById(partnerId);
+        if (!partnerModelOptional.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partner not found.");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("gameLoanService.loan(gameLoanModel)");
+    }
 
     @DeleteMapping("refund/{game_loan_id}")
     public ResponseEntity<Object> gameRefund(@PathVariable(value = "partner_id") Long partnerId,
@@ -90,7 +88,11 @@ public class GameLoanController {
         Optional<GameLoanModel> gameLoanModelOptional = gameLoanService.findById(gameLoanId);
         if (!gameLoanModelOptional.isPresent())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Loan not found.");
+
         GameLoanModel gameLoanModel = gameLoanModelOptional.get();
+
+        if (!partnerId.equals(gameLoanModel.getPartner().getId() ))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Loan not found");
 
         if(gameLoanModel.getReturnDate() != null)
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Refund has already been made");

@@ -42,7 +42,7 @@ public class GameService {
 
     @Transactional
     public void deleteAllByOwnerId(Long partnerId) {
-        gameRepository.deleteAllByOwnerId(partnerId);
+        gameRepository.customDeleteAllOwnerId(partnerId);
     }
 
     public Page<GameModel> findAll(Pageable pageable) {

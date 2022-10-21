@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 
 @Repository
 public interface GameLoanRepository extends JpaRepository<GameLoanModel, Long> {
@@ -20,14 +19,15 @@ public interface GameLoanRepository extends JpaRepository<GameLoanModel, Long> {
     @Query(value = "SELECT count(gl) FROM GameLoanModel gl WHERE gl.partner.id = :partnerId and gl.returnDate is NULL")
     public Long countGameLoansNotRefund(Long partnerId);
 
-    @Query(value = "select count(gl)\n" +
-            "      from GameLoanModel gl\n" +
-            "      LEFT JOIN PartnerModel p1 ON p1.id = gl.partner.id\n" +
-            "      LEFT JOIN GameModel g1 ON g1.id = gl.game.id\n" +
-            "      where g1.owner.id = :partnerId or p1.id = :partnerId")
-    public Long countGameLoans(Long partnerId);
+    @Query(value = "SELECT EXISTS (SELECT gl FROM tb_game_loan gl WHERE gl.partner_id = :partnerId LIMIT 1)", nativeQuery = true)
+    public Boolean existActiveLoans(Long partnerId);
 
-    @Query(value = "SELECT count(gl) FROM GameLoanModel gl WHERE gl.game.id = :gameId and gl.returnDate is null")
-    public Long checkGameIsAvailable(Long gameId);
+    @Query(value = "SELECT EXISTS (SELECT gl FROM tb_game_loan gl, tb_game gg WHERE gl.game_id = gg.id AND gg.owner_id = :ownerId LIMIT 1)", nativeQuery = true)
+    public Boolean existBurrowedGames(Long ownerId);
+
+    @Query(value = "SELECT NOT EXISTS (SELECT gl FROM tb_game_loan gl WHERE gl.game_id = :gameId AND gl.return_date IS NULL )", nativeQuery = true)
+    public Boolean checkGameIsAvailable(Long gameId);
+
+
 
 }

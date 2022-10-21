@@ -41,6 +41,5 @@ public class GameLoanModel implements Serializable {
 
     private LocalDateTime returnDate;
 
-//    id, partner, game, loanDate, scheduledReturnDate , returnDate
 
 }
